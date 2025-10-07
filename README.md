@@ -135,5 +135,5 @@ $ npm run migration:revert
 ```
 
 # Assignment applicantor
-- Full name : 
-- Email :
+- Full name : Lê Đức Phúc
+- Email : leducphuc1234@gmail.com
