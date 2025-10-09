@@ -1,0 +1,27 @@
+services:
+  mariadb:
+    image: mariadb:11.7
+    container_name: nestjs_assignment_mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_123
+      MYSQL_DATABASE: nestjs_assignment_test
+      MYSQL_USER: nestjs_assignment_test
+      MYSQL_PASSWORD: nestjs_assignment_test
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/init-mariadb.sql:/docker-entrypoint-initdb.d/init-mariadb.sql:ro
+    networks:
+      - nestjs_assignment_s
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  nestjs_assignment_s:
+    name: nestjs_assignment_s
+    driver: bridge
