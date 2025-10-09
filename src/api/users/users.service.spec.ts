@@ -14,7 +14,7 @@ describe("Users service", () => {
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			imports: [
-				TypeOrmModule.forRoot(config as DataSourceOptions),
+				TypeOrmModule.forRoot(config as unknown as DataSourceOptions),
 				TypeOrmModule.forFeature([User]),
 				CommonModule,
 			],

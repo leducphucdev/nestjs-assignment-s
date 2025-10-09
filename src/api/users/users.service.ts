@@ -1,6 +1,7 @@
 import {
-	Injectable,
-	NotFoundException,
+    Injectable,
+    NotFoundException,
+    BadRequestException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DbUtilsService } from "src/common/services/db-utils.service";
@@ -59,7 +60,12 @@ export class UsersService {
 	 * @param payload - The required information to create a user
 	 * @returns Promise that resolves to the created User entity
 	 */
-	async createUser(payload: CreateUserDto): Promise<User> {
+	async  createUser(payload: CreateUserDto): Promise<User> {
+    const existingUser = await this.findByEmail(payload.email);
+    if (existingUser) {
+        throw new BadRequestException("Email is already taken");
+    }
+
 		const newUser = this.userRepository.create(payload);
 
 		return this.dbUtilsService.executeSafely(() => this.userRepository.save(newUser));
@@ -74,6 +80,14 @@ export class UsersService {
 	 */
 	async updateUser(id: string, attrs: UpdateUserDto): Promise<User> {
 		const user = await this.findById(id);
+
+		// Ensure email uniqueness if updating email
+		if (attrs.email && attrs.email !== user.email) {
+			const existingUser = await this.findByEmail(attrs.email);
+			if (existingUser && existingUser.id !== id) {
+				throw new BadRequestException("Email is already taken");
+			}
+		}
 
 		return this.dbUtilsService.executeSafely(() =>
 			this.userRepository.save({ ...user, ...attrs }),
