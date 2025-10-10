@@ -1,6 +1,7 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { DbUtilsService } from "../../common/services/db-utils.service";
+import { JwtAuthService } from "../auth/jwt-auth.service";
 import { User } from "./user.entity";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
@@ -9,9 +10,14 @@ describe("User controller", () => {
 	let controller: UsersController;
 	let fakeUsersService: Partial<UsersService>;
 	let fakeDbUtilsService: Partial<DbUtilsService>;
+	let fakeJwtAuthService: Partial<JwtAuthService>;
 
 	beforeEach(async () => {
 		fakeDbUtilsService = {};
+		
+		fakeJwtAuthService = {
+			generateToken: (user: User) => Promise.resolve({ access_token: "fake-jwt-token" }),
+		};
 
 		fakeUsersService = {
 			findById: (id: string) => {
@@ -43,6 +49,7 @@ describe("User controller", () => {
 			providers: [
 				{ provide: UsersService, useValue: fakeUsersService },
 				{ provide: DbUtilsService, useValue: fakeDbUtilsService },
+				{ provide: JwtAuthService, useValue: fakeJwtAuthService },
 			],
 		}).compile();
 

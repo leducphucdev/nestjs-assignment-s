@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { CommonModule } from "src/common/common.module";
 import { config } from "src/config/data-source.config";
 import { DataSource, DataSourceOptions } from "typeorm";
+import { AuthModule } from "../auth/auth.module";
 import { UsersModule } from "../users/users.module";
 import { UsersService } from "../users/users.service";
 import { Project } from "./project.entity";
@@ -19,6 +20,7 @@ describe("Projects service", () => {
 			imports: [
 				TypeOrmModule.forRoot(config as unknown as DataSourceOptions),
 				TypeOrmModule.forFeature([Project]),
+				AuthModule,
 				UsersModule,
 				CommonModule,
 			],

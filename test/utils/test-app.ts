@@ -1,12 +1,14 @@
 import { INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ApiService } from "src/api/auth/api.service";
 import { AppModule } from "src/app.module";
 import request from "supertest";
 import { DataSource } from "typeorm";
+import { UsersService } from "src/api/users/users.service";
+import { JwtAuthService } from "src/api/auth/jwt-auth.service";
+
 export class TestApp {
 	app: INestApplication;
-	apiKey: string;
+	accessToken: string;
 	testUUID = "2ba986fa-28a3-4b20-ac4a-5b2b09238154";
 
 	static async create(): Promise<TestApp> {
@@ -21,11 +23,19 @@ export class TestApp {
 		const dataSouce = testApp.app.get(DataSource);
 		await dataSouce.synchronize(true);
 
-		const apiService = moduleFixture.get<ApiService>(ApiService);
-		const apiKey = await apiService.generateKey();
-		testApp.apiKey = apiKey.id;
-
-        
+		// Create a test user and generate JWT token
+		const usersService = moduleFixture.get<UsersService>(UsersService);
+		const jwtAuthService = moduleFixture.get<JwtAuthService>(JwtAuthService);
+		
+		const testUser = await usersService.createUser({
+			firstName: "Test",
+			lastName: "User",
+			email: "test@example.com",
+			location: "Test Location",
+		});
+		
+		const tokenResponse = await jwtAuthService.generateToken(testUser);
+		testApp.accessToken = tokenResponse.access_token;
 
 		return testApp;
 	}
@@ -35,19 +45,19 @@ export class TestApp {
 	}
 
 	getRequest() {
-		return this.authRequest(this.getHttpServer(), this.apiKey);
+		return this.authRequest(this.getHttpServer(), this.accessToken);
 	}
 
 	async close() {
 		return this.app.close();
 	}
 
-	private authRequest(server, key) {
+	private authRequest(server, token) {
 		return {
-			get: (url) => request(server).get(url).set("x-api-key", key),
-			post: (url) => request(server).post(url).set("x-api-key", key),
-			patch: (url) => request(server).patch(url).set("x-api-key", key),
-			delete: (url) => request(server).delete(url).set("x-api-key", key),
+			get: (url) => request(server).get(url).set("xt-sol-api-key", token),
+			post: (url) => request(server).post(url).set("xt-sol-api-key", token),
+			patch: (url) => request(server).patch(url).set("xt-sol-api-key", token),
+			delete: (url) => request(server).delete(url).set("xt-sol-api-key", token),
 		};
 	}
 }

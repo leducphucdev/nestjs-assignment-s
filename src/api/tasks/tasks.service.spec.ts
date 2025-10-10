@@ -5,6 +5,7 @@ import { CommonModule } from "src/common/common.module";
 import { config } from "src/config/data-source.config";
 import { TaskStatus } from "src/common/types";
 import { DataSource, DataSourceOptions } from "typeorm";
+import { AuthModule } from "../auth/auth.module";
 import { ProjectsModule } from "../projects/projects.module";
 import { ProjectsService } from "../projects/projects.service";
 import { UsersModule } from "../users/users.module";
@@ -26,6 +27,7 @@ describe("Tasks service", () => {
 			imports: [
 				TypeOrmModule.forRoot(config as unknown as DataSourceOptions),
 				TypeOrmModule.forFeature([Task]),
+				AuthModule,
 				UsersModule,
 				ProjectsModule,
 				CommonModule,
