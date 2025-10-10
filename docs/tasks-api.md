@@ -60,6 +60,40 @@ curl --url "localhost:3000/tasks/4f3b2c1d-5e6f-7a8b-9c0d-e1f2g3h4i5j6"
 }
 ```
 
+ 
+## Count tasks by user and status
+
+Returns the number of tasks for a given user filtered by status.
+
+```plaintext
+GET /tasks/user/:userId/count?status=STATUS
+```
+
+Supported attributes:
+
+| Attribute | In    | Type   | Required | Description                                      |
+|-----------|-------|--------|----------|--------------------------------------------------|
+| `userId`  | path  | string | Yes      | Unique user id in UUIDv4 format                  |
+| `status`  | query | enum   | Yes      | `TODO`, `DOING`, `IN REVIEW`, `DONE`, `DROPPED`  |
+
+If successful, returns `200` with:
+
+| Attribute | Type   | Description                 |
+|-----------|--------|-----------------------------|
+| `count`   | number | Number of matching tasks    |
+
+### Example request
+
+```shell
+curl --url "localhost:3000/tasks/user/4f3b2c1d-5e6f-7a8b-9c0d-e1f2g3h4i5j6/count?status=TODO"
+```
+
+### Example response
+
+```json
+{ "count": 3 }
+```
+
 ## Create Task
 
 Creates a new task.
