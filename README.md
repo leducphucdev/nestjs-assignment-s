@@ -98,30 +98,50 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Extra
+## Authentication
 
-Each request checks for the `x-api-key` header. If the header is not included, or an invalid API key is given, a `403 Forbidden` status code will be returned. An active API key needs to be created to send any requests. You can create a new API key by connecting to the database and running the following  SQL command:
+This API uses JWT (JSON Web Token) authentication. All requests must include a valid JWT token in the `xt-sol-api-key` header. Tokens expire in 10 minutes.
 
-```sql
--- development or production database
-INSERT INTO api_key (id, is_active) VALUES (uuid(), true);
+### Getting a Token
+
+To get a JWT token, first create a user, then login with their email:
+
+1. Create a user:
+```bash
+curl --header "Content-Type: application/json" \
+     --request POST \
+     --data '{
+       "firstName": "John",
+       "lastName": "Doe",
+       "email": "john@example.com",
+       "location": "New York"
+     }' \
+     --url "localhost:3000/users/create"
 ```
 
-This will create a new active API key with a random UUID as its `key` column value. You can find the API key by running the following SQL command:
+2. Login to get a token:
+```bash
+curl --header "Content-Type: application/json" \
+     --request POST \
+     --data '{"email": "john@example.com"}' \
+     --url "localhost:3000/users/login"
+```
 
-```sql
--- development or production database
-SELECT * FROM api_key;
+This will return:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
 # Requests
 
-When sending HTTP requests, either via Postman or any other tool, make sure to include the `x-api-key` header with any appropriate value. If the `x-api-key` header is not included, the server will respond with a `403 Forbidden` status code.
+When sending HTTP requests, include the JWT token in the `xt-sol-api-key` header. If the header is not included or the token is invalid/expired, the server will respond with a `401 Unauthorized` status code.
 
 Example request:
 ```bash
-curl --url "localhost:3000/users/email/example@email.com" \
-     --header "x-api-key: ac70ca11-5d7f-4ca3-bede-fb1a06a36d28"
+curl --url "localhost:3000/users/email/john@example.com" \
+     --header "xt-sol-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
 # Migrations

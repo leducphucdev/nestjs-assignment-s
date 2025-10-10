@@ -7,7 +7,7 @@ This document provides information about all available endpoints for managing pr
 - [Users API Documentation](./users-api.md)
 - [Projects API Documentation](./projects-api.md)
 
-> **Note**: All requests must include the `x-api-key` header with any value to pass the authorization check. In these examples, the `x-api-key` header is omitted for brevity.
+> **Note**: All requests must include a valid JWT token in the `xt-sol-api-key` header. Tokens expire in 10 minutes and can be obtained by logging in via the `/users/login` endpoint. In these examples, the `xt-sol-api-key` header is omitted for brevity.
 
 ## Table of Contents
 

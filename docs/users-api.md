@@ -7,15 +7,53 @@ This document provides information about all available endpoints for managing us
 - [Project API Documentation](./projects-api.md)
 - [Tasks API Documentation](./tasks-api.md)
 
-> **Note**: All requests must include the `x-api-key` header with any value to pass the authorization check. In these examples, the `x-api-key` header is omitted for brevity.
+> **Note**: All requests must include a valid JWT token in the `xt-sol-api-key` header. Tokens expire in 10 minutes and can be obtained by logging in via the `/users/login` endpoint. In these examples, the `xt-sol-api-key` header is omitted for brevity.
 
 ## Table of Contents
 
+- [Login](#login)
 - [Get user by ID](#get-user-by-id)
 - [Get user by email](#get-user-by-email)
 - [Create User](#create-user)
 - [Update User](#update-user)
 - [Delete User](#delete-user)
+
+## Login
+
+Authenticates a user and returns a JWT token.
+
+```plaintext
+POST /users/login
+```
+
+Supported attributes:
+
+| Attribute | Type   | Required | Description |
+|-----------|--------|----------|-------------|
+| `email`   | string | Yes      | User email  |
+
+If successful, returns `200` and the following response attributes:
+
+| Attribute     | Type   | Description                           |
+|---------------|--------|---------------------------------------|
+| `access_token`| string | JWT token (expires in 10 minutes)     |
+
+### Example request
+
+```shell
+curl --header "Content-Type: application/json" \
+     --request POST \
+     --data '{"email": "example@email.com"}' \
+     --url "localhost:3000/users/login"
+```
+
+### Example response
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
 ## Get user by ID
 
