@@ -1,19 +1,37 @@
-import { CanActivate, ExecutionContext, Inject } from "@nestjs/common";
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-import { ApiService } from "../auth/api.service";
+import { UsersService } from "../users/users.service";
 
+@Injectable()
 export class AuthGuard implements CanActivate {
-	constructor(@Inject() private apiService: ApiService) {}
+	constructor(
+		private jwtService: JwtService,
+		private usersService: UsersService,
+	) {}
 
-	async canActivate(context: ExecutionContext) {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const req: Request = context.switchToHttp().getRequest();
-		const providedKey = req.headers["x-api-key"] as string;
+		const token = req.headers["xt-sol-api-key"] as string;
 
-		if (!providedKey) return false;
+		if (!token) {
+			throw new UnauthorizedException('Token not provided');
+		}
 
-		const key = await this.apiService.findKey(providedKey);
+		try {
+			const payload = this.jwtService.verify(token, {
+				secret: process.env.JWT_SECRET || 'your-secret-key',
+			});
 
-		if (!key) return false;
-		return true;
+			const user = await this.usersService.findById(payload.sub);
+			if (!user) {
+				throw new UnauthorizedException('User not found');
+			}
+
+			req.user = user;
+			return true;
+		} catch (error) {
+			throw new UnauthorizedException('Invalid token');
+		}
 	}
 }

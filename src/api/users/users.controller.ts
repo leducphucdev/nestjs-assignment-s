@@ -14,10 +14,14 @@ import { CreateUserDto } from "./dtos/create-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 import { User } from "./user.entity";
 import { UsersService } from "./users.service";
+import { JwtAuthService } from "../auth/jwt-auth.service";
 
 @Controller("/users")
 export class UsersController {
-	constructor(private readonly usersService: UsersService) {}
+	constructor(
+		private readonly usersService: UsersService,
+		private readonly jwtAuthService: JwtAuthService,
+	) {}
 
 	@Get("/:id")
 	async findUserById(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
@@ -47,5 +51,11 @@ export class UsersController {
 	@Delete("/:id")
 	async deleteUser(@Param("id", ParseUUIDPipe) id: string): Promise<DeleteStatus> {
 		return this.usersService.deleteUser(id);
+	}
+
+	@Post("/login")
+	async login(@Body("email") email: string): Promise<{ access_token: string }> {
+		const user = await this.usersService.findByEmail(email, true);
+		return this.jwtAuthService.generateToken(user);
 	}
 }
