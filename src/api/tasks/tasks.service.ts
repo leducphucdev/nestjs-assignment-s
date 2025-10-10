@@ -121,8 +121,13 @@ export class TasksService {
 			status: payload.status,
 		});
 
-		task.user = await this.usersService.findById(payload.userId);
-		task.project = await this.projectsService.findById(payload.projectId);
+		const [user, project] = await Promise.all([
+			this.usersService.findById(payload.userId),
+			this.projectsService.findById(payload.projectId),
+		]);
+
+		task.user = user;
+		task.project = project;
 
 		return this.dbUtilsService.executeSafely(() => this.taskRepository.save(task));
 	}
@@ -137,15 +142,24 @@ export class TasksService {
 	async updateTask(id: string, attrs: UpdateTaskDto): Promise<Task> {
 		const task = await this.findById(id);
 
+		const lookups: Promise<void>[] = [];
 		if (attrs.userId) {
-			task.user = await this.usersService.findById(attrs.userId);
+			const userPromise = this.usersService.findById(attrs.userId).then((user) => {
+				task.user = user;
+			});
+			lookups.push(userPromise);
 			attrs = omit(attrs, "userId");
 		}
 
 		if (attrs.projectId) {
-			task.project = await this.projectsService.findById(attrs.projectId);
+			const projectPromise = this.projectsService.findById(attrs.projectId).then((project) => {
+				task.project = project;
+			});
+			lookups.push(projectPromise);
 			attrs = omit(attrs, "projectId");
 		}
+
+		if (lookups.length) await Promise.all(lookups);
 
 		return this.dbUtilsService.executeSafely(() =>
 			this.taskRepository.save({ ...task, ...attrs }),
