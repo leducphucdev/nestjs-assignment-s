@@ -9,7 +9,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		super({
 			jwtFromRequest: ExtractJwt.fromHeader('xt-sol-api-key'),
 			ignoreExpiration: false,
-			secretOrKey: process.env.JWT_SECRET || 'your-secret-key',
+			secretOrKey: process.env.JWT_SECRET,
 		});
 	}
 
