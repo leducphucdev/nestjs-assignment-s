@@ -245,7 +245,7 @@ describe("Projects endpoint", () => {
 				projectId: project.id,
 				userId: testApp.testUUID,
 			})
-			.expect(400);
+			.expect(404);
 	});
 
 	it("/projects/users/remove -> PATCH (Project not Found)", async () => {
