@@ -1,4 +1,5 @@
 import { Global, Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -14,9 +15,13 @@ import { JwtStrategy } from "./jwt.strategy";
 		TypeOrmModule.forFeature([ApiKey]),
 		UsersModule,
 		PassportModule,
-		JwtModule.register({
-			secret: process.env.JWT_SECRET,
-			signOptions: { expiresIn: '10m' },
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+				secret: configService.get<string>('JWT_SECRET'),
+				signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') },
+			}),
+			inject: [ConfigService],
 		}),
 	],
 	providers: [ApiService, JwtAuthService, JwtStrategy],
