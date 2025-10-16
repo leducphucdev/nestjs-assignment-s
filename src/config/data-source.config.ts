@@ -13,11 +13,11 @@ export const config = {
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
-    entities: [process.env.TYPEORM_ENTITIES],
+    entities: [__dirname + process.env.TYPEORM_ENTITIES],
     migrations: [__dirname + process.env.TYPEORM_MIGRATIONS],
-    synchronize: process.env.TYPEORM_SYNCHRONIZE,
-    dropSchema: process.env.TYPEORM_DROP_SCHEMA,
-    migrationsRun: process.env.TYPEORM_MIGRATIONS_RUN
+    synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
+    dropSchema: process.env.TYPEORM_DROP_SCHEMA === 'true',
+    migrationsRun: process.env.TYPEORM_MIGRATIONS_RUN === 'true'
 };
 
 export const configNoSynchronize = {
@@ -28,7 +28,7 @@ export const configNoSynchronize = {
     username: process.env.TYPEORM_USERNAME,
     password: process.env.TYPEORM_PASSWORD,
     database: process.env.TYPEORM_DATABASE,
-    entities: [process.env.TYPEORM_ENTITIES],
+    entities: [__dirname + process.env.TYPEORM_ENTITIES],
     migrations: [__dirname + process.env.TYPEORM_MIGRATIONS],
     migrationsRun: false,
     synchronize: false,

@@ -12,6 +12,18 @@ export class AuthGuard implements CanActivate {
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const req: Request = context.switchToHttp().getRequest();
+		
+		// Define public routes that don't require authentication
+		const publicRoutes = [
+			'/users/create',
+			'/users/login',
+		];
+
+		// Check if the current route is public
+		if (publicRoutes.some(route => req.url.startsWith(route))) {
+			return true;
+		}
+
 		const token = req.headers["xt-sol-api-key"] as string;
 
 		if (!token) {
